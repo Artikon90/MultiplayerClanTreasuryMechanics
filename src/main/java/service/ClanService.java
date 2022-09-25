@@ -1,9 +1,9 @@
 package service;
 
 import model.Clan;
+import model.Tracker;
 
 public interface ClanService {
     Clan get(long id);
-    boolean update(Clan clan);
-    void changeClanGold(int goldDifference, long clanId, long userId);
+    boolean updateClanGold(long clanId, int diff, Tracker tracker);
 }

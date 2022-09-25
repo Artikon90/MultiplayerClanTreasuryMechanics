@@ -19,6 +19,7 @@ public class JdbcConnection {
     private static final String username;
     private static final String password;
     private static final String url;
+    private static Connection connection;
     static {
         try (var loader = new FileInputStream("src/main/resources/db.properties")) {
             var prop = new Properties();
@@ -27,8 +28,7 @@ public class JdbcConnection {
             username = prop.getProperty("db.username");
             password = prop.getProperty("db.password");
             url = prop.getProperty("db.path");
-            Class.forName(driver);
-        } catch (FileNotFoundException | ClassNotFoundException e) {
+        } catch (FileNotFoundException e) {
             logger.debug("DB config file not found or invalid JDBC driver");
             throw new RuntimeWrapperException(e.getMessage());
         } catch (IOException e) {
@@ -37,12 +37,18 @@ public class JdbcConnection {
         }
     }
     public static Connection getConnection() {
-        try {
-            return DriverManager.getConnection(url, username, password);
-        } catch (SQLException e) {
-            logger.atError().log("In process getting connection for db has been" +
-                    " throw SQLException with stacktrace: " + Arrays.toString(e.getStackTrace()));
-            throw new RuntimeWrapperException(e.getMessage());
+        if (connection == null) {
+            try {
+                Class.forName(driver);
+                connection = DriverManager.getConnection(url, username, password);
+            } catch (SQLException e) {
+                logger.atError().setCause(e).log("Failed to connecting to DB, probably invalid url or username/pass");
+                throw new RuntimeWrapperException(e.getMessage(), e);
+            } catch (ClassNotFoundException e) {
+                logger.atError().setCause(e).log("Not found JDBC driver, specified is {}", driver);
+                throw new RuntimeWrapperException(e.getMessage(), e);
+            }
         }
+        return connection;
     }
 }

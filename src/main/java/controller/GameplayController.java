@@ -2,9 +2,10 @@ package controller;
 
 import service.TaskService;
 import service.UserService;
-import util.TestHelper;
 
-public class GameplayController {
+import static util.TestHelper.getRandomUserId;
+
+public class GameplayController implements Runnable {
     private final TaskService taskService;
     private final UserService userService;
 
@@ -13,17 +14,19 @@ public class GameplayController {
         this.userService = new UserService();
     }
 
-    void gameplayImitator() {
-        var rnd = (int)(Math.random() * 1);
-        var user = userService.getUser(TestHelper.getRandomUser());
-        if (rnd == 0) {
-            var task = taskService.createCompleteTask(user.getId());
-            taskService.completeTask(user.getClanId(), task.getId(), user.getId());
-        } else if (rnd == 1) {
-            var minusRnd = (int)(Math.random() * 1);
-            var rndNumberGold = (int)(Math.random() * 50);
-            var goldDiff = minusRnd == 0 ? rndNumberGold * -1 : rndNumberGold;
-            userService.updateClanGoldUserWallet(user.getId(), goldDiff);
-        }
+    @Override
+    public void run() {
+        fromUserWallet();
+        completeTask();
+    }
+
+    private void completeTask() {
+        var task = taskService.createCompletedTask(getRandomUserId());
+        var user = userService.getUser(task.getUserId());
+        taskService.completeTask(user.getClanId(), task.getId());
+    }
+
+    private void fromUserWallet() {
+        userService.updateClanGoldUserWallet(getRandomUserId(), 55);
     }
 }

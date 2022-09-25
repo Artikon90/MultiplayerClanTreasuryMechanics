@@ -1,15 +1,25 @@
 package model;
 
-public class Clan {
-    private long id;
-    private String name;
-    private int gold;
+import java.util.concurrent.atomic.AtomicInteger;
 
-    public long getId() {
+public class Clan {
+    private Long id;
+    private String name;
+    private volatile AtomicInteger gold;
+
+    public Clan(int gold) {
+        this.gold = new AtomicInteger(gold);
+    }
+
+    public Clan() {
+        this.gold = new AtomicInteger();
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -21,11 +31,7 @@ public class Clan {
         this.name = name;
     }
 
-    public int getGold() {
+    public AtomicInteger getGold() {
         return gold;
-    }
-
-    public void setGold(int gold) {
-        this.gold = gold;
     }
 }

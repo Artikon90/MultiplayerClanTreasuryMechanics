@@ -25,12 +25,13 @@ public class UserQuestDAO {
                     result.getInt("gold_reward"),
                     result.getLong("user_id"));
         } catch (SQLException e) {
-            throw  new RuntimeWrapperException(e.getMessage());
+            logger.atError().setCause(e).log("Failed getting quest with id {}", id);
+            throw new RuntimeWrapperException(e.getMessage(), e);
         }
     }
 
     /**
-     * Создание выполненного квеста для тестирования метода пополнения казны за счет выполнения
+     * Создание выполненного квеста для тестирования метода пополнения казны за счет выполнения квеста
      * @return возвращает экземпляр созданного квеста
      */
     public UserQuest createCompletedQuest(long userId) {
@@ -38,13 +39,13 @@ public class UserQuestDAO {
             var statement = connection.prepareStatement(
                     "INSERT INTO quest(is_complete, gold_reward, user_id) VALUES (true, ?, ?)",
                     Statement.RETURN_GENERATED_KEYS);
-            int reward = (int)(Math.random() * 100);
+            int reward = 50;
             statement.setInt(1, reward);
             statement.setLong(2, userId);
 
             int affectedRows = statement.executeUpdate();
             if (affectedRows == 0) {
-                throw new SQLException("Creating user failed, no rows affected.");
+                throw new SQLException("Creating quest for user " + userId + " failed, no rows affected.");
             }
             var result = new UserQuest();
             result.setComplete(true);
@@ -55,12 +56,13 @@ public class UserQuestDAO {
                    result.setId(generatedKeys.getLong(1));
                 }
                 else {
-                    throw new SQLException("Creating user failed, no ID obtained.");
+                    throw new SQLException("Creating quest failed, no ID obtained.");
                 }
             }
             return result;
         } catch (SQLException e) {
-            throw new RuntimeWrapperException(e.getMessage());
+            logger.atError().setCause(e).log("Failed to create quest for user {}", userId);
+            throw new RuntimeWrapperException(e.getMessage(), e);
         }
     }
 }

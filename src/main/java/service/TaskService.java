@@ -1,12 +1,16 @@
 package service;
 
 import dao.UserQuestDAO;
+import exception.QuestCompleteException;
+import model.ReasonUpdate;
+import model.Tracker;
 import model.UserQuest;
-
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TaskService {
+
+    private static final Logger logger = LoggerFactory.getLogger(TaskService.class);
 
     private final ClanService clanService;
     private final UserQuestDAO userQuestDAO;
@@ -16,10 +20,15 @@ public class TaskService {
         this.userQuestDAO = new UserQuestDAO();
     }
 
-    public void completeTask(long clanId, long taskId, long userId) {
+    public void completeTask(long clanId, long taskId) {
         var task = getQuest(taskId);
         if (task.isComplete()) {
-            clanService.changeClanGold(task.getGoldReward(), clanId, userId);
+            var tracker = new Tracker(ReasonUpdate.COMPETE_QUEST, clanId, task.getUserId(), task.getGoldReward(), taskId);
+            boolean res = clanService.updateClanGold(clanId, task.getGoldReward(), tracker);
+            if (!res) {
+                logger.atDebug().log("Unsuccessful update clan gold. Tracker id: {}", tracker.getId());
+                throw new QuestCompleteException("Unexpected result of update clan gold");
+            }
         }
     }
 
@@ -27,13 +36,7 @@ public class TaskService {
         return userQuestDAO.getQuest(id);
     }
 
-    public UserQuest createCompleteTask(long userId) {
-        Lock lock = new ReentrantLock(true);
-        lock.lock();
-        try {
-            return userQuestDAO.createCompletedQuest(userId);
-        } finally {
-            lock.unlock();
-        }
+    public synchronized UserQuest createCompletedTask(long userId) {
+        return userQuestDAO.createCompletedQuest(userId);
     }
 }

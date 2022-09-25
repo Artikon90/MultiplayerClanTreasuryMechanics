@@ -1,14 +1,16 @@
 package model;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class Player {
     private long id;
-    private int gold;
+    private volatile AtomicInteger gold;
     private String username;
     private long clanId;
 
     public Player(long id, int gold, String username, long clanId) {
         this.id = id;
-        this.gold = gold;
+        this.gold = new AtomicInteger(gold);
         this.username = username;
         this.clanId = clanId;
     }
@@ -21,12 +23,8 @@ public class Player {
         this.id = id;
     }
 
-    public int getGold() {
+    public AtomicInteger getGold() {
         return gold;
-    }
-
-    public void setGold(int gold) {
-        this.gold = gold;
     }
 
     public String getUsername() {
