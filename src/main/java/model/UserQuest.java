@@ -4,7 +4,7 @@ public class UserQuest {
     private long id;
     private boolean isComplete;
     private int goldReward;
-    private long userId;
+    private Long userId;
 
     public UserQuest() {
     }
@@ -24,6 +24,14 @@ public class UserQuest {
         this.id = id;
     }
 
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
     public boolean isComplete() {
         return isComplete;
     }
@@ -38,13 +46,5 @@ public class UserQuest {
 
     public void setGoldReward(int goldReward) {
         this.goldReward = goldReward;
-    }
-
-    public long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(long userId) {
-        this.userId = userId;
     }
 }

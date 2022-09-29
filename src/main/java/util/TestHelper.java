@@ -2,7 +2,7 @@ package util;
 
 public class TestHelper {
 
-    public static long getRandomUserId() {
-        return (long)(Math.random() * 19) + 1;
+    public static Long getRandomUserId() {
+        return (long)(Math.random() * 2419) + 1;
     }
 }

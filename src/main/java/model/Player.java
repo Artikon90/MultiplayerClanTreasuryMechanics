@@ -3,10 +3,10 @@ package model;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Player {
-    private long id;
+    private Long id;
     private volatile AtomicInteger gold;
     private String username;
-    private long clanId;
+    private Long clanId;
 
     public Player(long id, int gold, String username, long clanId) {
         this.id = id;
@@ -15,12 +15,20 @@ public class Player {
         this.clanId = clanId;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getClanId() {
+        return clanId;
+    }
+
+    public void setClanId(Long clanId) {
+        this.clanId = clanId;
     }
 
     public AtomicInteger getGold() {
@@ -35,11 +43,4 @@ public class Player {
         this.username = username;
     }
 
-    public long getClanId() {
-        return clanId;
-    }
-
-    public void setClanId(long clanId) {
-        this.clanId = clanId;
-    }
 }

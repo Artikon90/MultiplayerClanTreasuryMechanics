@@ -4,6 +4,6 @@ import model.Clan;
 import model.Tracker;
 
 public interface ClanService {
-    Clan get(long id);
-    boolean updateClanGold(long clanId, int diff, Tracker tracker);
+    Clan get(Long id);
+    boolean updateClanGold(Long clanId, int diff, Tracker tracker);
 }
