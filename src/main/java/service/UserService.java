@@ -7,6 +7,8 @@ import model.Tracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static util.EntityLocker.getUserLock;
+
 public class UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private final UserDAO userDAO;
@@ -17,25 +19,36 @@ public class UserService {
         this.clanService = new ClanServiceImpl();
     }
 
-    public Player getUser(long id) {
-        synchronized ((Long) id) {
+    public Player getUser(Long id) {
+        var lock = getUserLock(id);
+        lock.lock();
+        try {
             return userDAO.getPlayer(id);
+        } finally {
+            lock.unlock();
         }
     }
 
-    public boolean updateUserGold(long id, int diff) {
-        synchronized ((Long) id) {
+    public boolean updateUserGold(Long id, int diff) {
+        var lock = getUserLock(id);
+        lock.lock();
+        try {
             logger.info("Received request to update USER {}, with gold difference {}", id, diff);
             return userDAO.updateGold(id, diff);
+        } finally {
+            lock.unlock();
         }
+
     }
 
     /**
      * Метод обновления казны с возможностью как положить в неё деньги, так и достать
      * @return возвращает успешность операции (true если да, false если нет)
      */
-    public boolean updateClanGoldUserWallet(long id, int goldDiff) {
-        synchronized ((Long) id) {
+    public boolean updateClanGoldUserWallet(Long id, int goldDiff) {
+        var lock = getUserLock(id);
+        lock.lock();
+        try {
             var user = getUser(id);
             var clan = clanService.get(user.getClanId());
             var tracker = new Tracker(ReasonUpdate.FROM_WALLET, clan.getId(), id, goldDiff);
@@ -48,6 +61,8 @@ public class UserService {
                 resultClanUpdate = clanService.updateClanGold(user.getClanId(), goldDiff, tracker);
             }
             return resultClanUpdate && resultUserUpdate;
+        } finally {
+            lock.unlock();
         }
     }
 }
