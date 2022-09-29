@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.concurrent.ThreadPoolExecutor;
 
 public class ClanDAO {
     private static final Logger logger = LoggerFactory.getLogger(ClanDAO.class);
@@ -22,7 +21,6 @@ public class ClanDAO {
     public Clan getClan(long id) {
         var clan = new Clan();
         try {
-            ThreadPoolExecutor ab;
             var statement = connection.prepareStatement("SELECT * FROM clan WHERE clan_id = ?");
             statement.setLong(1, id);
             var result = statement.executeQuery();
